@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+<div class="converter">
+    <h1>Currency Converter Example</h1>
+    <label for="fromCurrency">From:</label>
+    <select id="fromCurrency">
+    </select>
+
+    <label for="toCurrency">To:</label>
+    <select id="toCurrency">
+    </select>
+
+    <label for="amount">Amount:</label>
+    <input type="number" id="amount" placeholder="Enter amount">
+
+    <button onclick="convert()">Convert</button>
+
+    <div id="result"></div>
+</div>
+
+<h2>Json:</h2>
+<div id="coindesk_json" style="max-width: 50%;min-width:320px;">
+    <code>
+        {{ json }}
+    </code>
+</div>
+<script>
+    const btcQuotes = JSON.parse(document.getElementById('coindesk_json').innerText);
+    function convertCurrency(amount, fromCurrency, toCurrency) {
+        if (!btcQuotes.bpi[fromCurrency] || !btcQuotes.bpi[toCurrency]) {
+            console.error("Invalid currency");
+            return;
+        }
+
+        // Получаем курсы BTC к USD
+        const btcToUsdRate = btcQuotes.bpi[fromCurrency].rate_float;
+        const btcToUsdAmount = amount / btcToUsdRate;
+
+        // Получаем курс BTC к целевой валюте
+        const btcToTargetRate = btcQuotes.bpi[toCurrency].rate_float;
+
+        // Конвертируем сумму из BTC в целевую валюту
+        return btcToUsdAmount * btcToTargetRate;
+    }
+
+    // Функция для обновления курса BTC к USD
+    function updateBtcToUsdRate() {
+        // Здесь можно добавить логику для обновления курса, если это необходимо
+        // Например, можно использовать AJAX запрос к внешнему API для получения актуальных данных
+    }
+
+    // Функция для обновления курсов валют и повторной конвертации
+    function updateAndConvert() {
+        updateBtcToUsdRate();
+        convert();
+    }
+
+    function convert() {
+        const fromCurrency = document.getElementById('fromCurrency').value;
+        const toCurrency = document.getElementById('toCurrency').value;
+        const amount = parseFloat(document.getElementById('amount').value);
+
+        if (isNaN(amount)) {
+            alert('Please enter a valid amount');
+            return;
+        }
+
+        const convertedAmount = convertCurrency(amount, fromCurrency, toCurrency);
+        const resultElement = document.getElementById('result');
+        resultElement.innerHTML = `${amount} ${fromCurrency} = ${convertedAmount.toFixed(2)} ${toCurrency}`;
+    }
+    function populateCurrencySelectors() {
+        const fromCurrencySelector = document.getElementById('fromCurrency');
+        const toCurrencySelector = document.getElementById('toCurrency');
+
+        // Очистка текущих опций в селекторах
+        fromCurrencySelector.innerHTML = '';
+        toCurrencySelector.innerHTML = '';
+
+        // Заполнение селекторов на основе JSON
+        Object.keys(btcQuotes.bpi).forEach(currencyCode => {
+            const option = document.createElement('option');
+            option.value = currencyCode;
+            option.text = currencyCode;
+            fromCurrencySelector.appendChild(option.cloneNode(true));
+            toCurrencySelector.appendChild(option);
+        });
+    }
+    populateCurrencySelectors();
+</script>
+</body>
+</html>
