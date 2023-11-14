@@ -1,3 +1,6 @@
+<h3>Удобный link</h3>
+<code>https://github.com/HandsomeYury/currencyExchange.git</code>
+
 <h1>Запуск</h1><br>
 <code>docker compose up</code>
 
